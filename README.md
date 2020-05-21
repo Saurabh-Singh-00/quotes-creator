@@ -3,13 +3,13 @@
 
 ### Preview
 
-![Discover](screenshots/discover "Discover")
-![Liked](screenshots/liked "Liked")
-![Details](screenshots/details "Details")
-![Search](screenshots/search_uninit "Search")
-![Search](screenshots/search_field "Search")
-![Search](screenshots/search_result "Search")
-![Search](screenshots/saved_search "Search")
+![Discover](screenshots/discover.PNG "Discover")
+![Liked](screenshots/liked.PNG "Liked")
+![Details](screenshots/details.PNG "Details")
+![Search](screenshots/search_uninit.PNG "Search")
+![Search](screenshots/search_field.PNG "Search")
+![Search](screenshots/search_result.PNG "Search")
+![Search](screenshots/saved_search.PNG "Search")
 
 ### Contribution Guide
 
@@ -19,7 +19,8 @@
 - Create a file ```_key.dart``` in ```lib/secrets```
 - Add
 ```dart
-String pexelAuthKey = "YOUR_API_KEY"; ```
+String pexelAuthKey = "YOUR_API_KEY";
+```
 in _key.dart file
 
 ### TODOs
