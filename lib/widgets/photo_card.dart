@@ -13,7 +13,9 @@ class PhotoCard extends StatelessWidget {
       BuildContext context, Widget child, ImageChunkEvent progress) {
     if (progress == null) return child;
     return Center(
-      child: CircularProgressIndicator(),
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(Colors.black),
+      ),
     );
   }
 

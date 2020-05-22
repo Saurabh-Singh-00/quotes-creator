@@ -34,12 +34,23 @@ class PhotoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (photos.length == 0) {
+      return Center(
+        child: Text(
+          "No Photos to display",
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+      );
+    }
     return StaggeredGridView.countBuilder(
         padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         controller: scrollController,
         physics: BouncingScrollPhysics(),
         key: PageStorageKey('$storageKey'),
         crossAxisCount: 2,
+        shrinkWrap: true,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
         itemCount: hasReachedMax ? photos.length : photos.length + 1,

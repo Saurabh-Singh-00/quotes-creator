@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/search_bloc.dart';
 import 'package:insta_creator/blocs/photo/search_event.dart';
 import 'package:insta_creator/pages/tabs/discover.dart';
+import 'package:insta_creator/pages/tabs/profile.dart';
 import 'package:insta_creator/pages/tabs/search.dart';
 
 class HomePage extends StatefulWidget {
@@ -36,7 +37,7 @@ class _HomePageState extends State<HomePage>
     SearchTab(),
     Container(),
     Container(),
-    Container(),
+    ProfileTab(),
   ];
 
   @override
@@ -115,7 +116,7 @@ class _HomePageState extends State<HomePage>
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           if (index != tabController.index) {
-            tabController.animateTo(index);
+            tabController.animateTo(index, curve: Curves.fastOutSlowIn);
             setState(() {
               tabController.index = index;
             });

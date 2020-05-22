@@ -5,6 +5,7 @@
 
 ![Discover](screenshots/discover.PNG "Discover")
 ![Liked](screenshots/liked.PNG "Liked")
+![Loading](screenshots/loading.PNG "Loading")
 ![Details](screenshots/details.PNG "Details")
 ![Search](screenshots/search_uninit.PNG "Search")
 ![Search](screenshots/search_field.PNG "Search")
