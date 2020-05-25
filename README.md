@@ -30,5 +30,6 @@ in _key.dart file
 - [x] ~~Search~~
 - [ ] Add to Favourites
 - [ ] Download Image
-- [ ] Edit Image
+- [x] ~~Edit Image~~
+- [x] ~~Save Edited Image~~
 - [ ] User Profile
