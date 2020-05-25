@@ -40,12 +40,13 @@ dev_dependencies:
     sdk: flutter
   build_runner: any
   json_serializable: any
-  flutter_native_splash: ^0.1.9
+  flutter_native_splash: any
   flutter_launcher_icons: ^0.7.5
 
 flutter_native_splash:
   image: assets/launcher_icon.png
   color: "ffffff"
+  android_disable_fullscreen: true
 
 flutter_icons:
   android: "launcher_icon"

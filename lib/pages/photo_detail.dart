@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/photo_bloc.dart';
 import 'package:insta_creator/models/photo.dart';
+import 'package:insta_creator/pages/photo_edit.dart';
+import 'package:insta_creator/widgets/image_loader.dart';
 
 class PhotoDetailPage extends StatelessWidget {
   final Photo photo;
@@ -11,7 +13,7 @@ class PhotoDetailPage extends StatelessWidget {
   final Map<String, Map<String, dynamic>> navbarItems = {
     "Details": {
       "icon": Icons.info_outline,
-      "callback": (BuildContext context) {},
+      "callback": (BuildContext context, Photo p) {},
     },
     "Favourite": {
       "icon": Icons.favorite_border,
@@ -21,15 +23,23 @@ class PhotoDetailPage extends StatelessWidget {
     },
     "Edit": {
       "icon": Icons.mode_edit,
-      "callback": (BuildContext context) {},
+      "callback": (BuildContext context, Photo p) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PhotoEditPage(
+              photo: p,
+            ),
+          ),
+        );
+      },
     },
     "Share": {
       "icon": Icons.share,
-      "callback": (BuildContext context) {},
+      "callback": (BuildContext context, Photo p) {},
     },
     "Save": {
       "icon": Icons.save_alt,
-      "callback": (BuildContext context) {},
+      "callback": (BuildContext context, Photo p) {},
     }
   };
 
@@ -45,7 +55,10 @@ class PhotoDetailPage extends StatelessWidget {
         child: Image.network(
           photo.src.original,
           fit: BoxFit.fill,
-          loadingBuilder: loadingBuilder,
+          loadingBuilder: (context, child, loadingProgress) => ImageLoader(
+            child: child,
+            loadingProgress: loadingProgress,
+          ),
         ),
       ),
       bottomNavigationBar: Theme(
@@ -56,13 +69,8 @@ class PhotoDetailPage extends StatelessWidget {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
-            if (index == 1) {
-              (navbarItems.entries.toList()[index].value["callback"]
-                  as Function)(context, photo);
-            } else {
-              (navbarItems.entries.toList()[index].value["callback"]
-                  as Function)(context);
-            }
+            (navbarItems.entries.toList()[index].value["callback"] as Function)(
+                context, photo);
           },
           showSelectedLabels: true,
           showUnselectedLabels: true,
@@ -94,47 +102,6 @@ class PhotoDetailPage extends StatelessWidget {
             );
           }).toList(),
         ),
-      ),
-    );
-  }
-
-  Widget loadingBuilder(
-      BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-    if (loadingProgress == null) return child;
-    double progressValue = loadingProgress.cumulativeBytesLoaded /
-        loadingProgress.expectedTotalBytes;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Loading Full Resolution Image",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-          LinearProgressIndicator(
-            backgroundColor: Colors.white,
-            value: progressValue,
-            valueColor: AlwaysStoppedAnimation(
-              ColorTween(begin: Colors.red[300], end: Colors.green)
-                  .transform(progressValue),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "${(progressValue * 100).round()} %",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
