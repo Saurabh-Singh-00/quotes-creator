@@ -8,8 +8,6 @@ class EditUninitialized extends EditState {
   EditUninitialized({this.photo});
 }
 
-class Saved extends EditState {}
-
 class Editing extends EditState {
   final List<Map> quotes;
 
@@ -17,3 +15,5 @@ class Editing extends EditState {
 
   Editing.copyWith({List<Map> quotes}) : this.quotes = quotes;
 }
+
+class SaveComplete extends EditState {}

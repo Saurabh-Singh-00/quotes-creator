@@ -1,10 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/edit_event.dart';
 import 'package:insta_creator/blocs/photo/edit_state.dart';
 import 'package:insta_creator/models/photo.dart';
 
+export 'package:insta_creator/blocs/photo/edit_state.dart';
+export 'package:insta_creator/blocs/photo/edit_event.dart';
+
 class EditBloc extends Bloc<EditEvent, EditState> {
   final Photo background;
+  final StreamController<bool> savingStream =
+      StreamController<bool>.broadcast();
+  final List<EditState> editStates = List<EditState>();
+
+  Future close() async {
+    savingStream.close();
+    super.close();
+  }
 
   EditBloc({this.background});
 
@@ -22,6 +35,31 @@ class EditBloc extends Bloc<EditEvent, EditState> {
       if (currentState is Editing) {
         yield Editing.copyWith(quotes: currentState.quotes + [event.toJson()]);
       }
+      if (currentState is SaveComplete) {
+        dynamic savedState = editStates.removeLast();
+        if (savedState is EditUninitialized) {
+          yield Editing(quotes: [event.toJson()]);
+          return;
+        } else if (savedState is Editing) {
+          yield Editing.copyWith(quotes: savedState.quotes + [event.toJson()]);
+        }
+      }
+    }
+    if (event is DeleteQuote) {
+      if (currentState is Editing) {
+        currentState.quotes.remove(event.quote);
+        yield Editing.copyWith(quotes: currentState.quotes);
+      }
+    }
+    if (event is Save) {
+      savingStream.add(true);
+    }
+    if (event is Saved) {
+      if (currentState is Editing || currentState is EditUninitialized) {
+        editStates.add(currentState);
+      }
+      savingStream.add(false);
+      yield SaveComplete();
     }
   }
 }

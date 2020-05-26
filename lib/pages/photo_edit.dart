@@ -1,11 +1,10 @@
-import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/edit_bloc.dart';
-import 'package:insta_creator/blocs/photo/edit_state.dart';
 import 'package:insta_creator/models/photo.dart';
 import 'package:insta_creator/services/storage.dart';
 import 'package:insta_creator/widgets/draggable_text.dart';
@@ -25,10 +24,16 @@ class PhotoEditPage extends StatefulWidget {
 class _PhotoEditPageState extends State<PhotoEditPage> {
   EditBloc editBloc;
   GlobalKey _canvasKey = GlobalKey();
+  double filterOpacity = 0.35;
+  Color filterColor = Colors.black;
 
   final Map<String, Map<String, dynamic>> navbarItems = {
-    "Filter": {
+    "Change Filter": {
       "icon": Icons.photo_filter,
+      "callback": (BuildContext context, EditBloc bloc) {},
+    },
+    "Filter Opacity": {
+      "icon": Icons.opacity,
       "callback": (BuildContext context, EditBloc bloc) {},
     },
     "Write": {
@@ -38,6 +43,7 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
           MaterialPageRoute(
             builder: (_) => ModalTextInput(
               bloc: bloc,
+              isEdit: false,
             ),
           ),
         );
@@ -55,6 +61,18 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
   void dispose() {
     editBloc.close();
     super.dispose();
+  }
+
+  void changeColorFilter() {
+    setState(() {
+      filterColor = Colors.primaries[Random().nextInt(Colors.primaries.length)];
+    });
+  }
+
+  void changeFilterOpacity() {
+    setState(() {
+      filterOpacity = (filterOpacity + 0.1) % 1.0;
+    });
   }
 
   Future<bool> saveImage() async {
@@ -75,24 +93,25 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
         backgroundColor: Colors.black,
         elevation: .0,
         actions: <Widget>[
-          FlatButton.icon(
-            icon: Icon(
-              Icons.check,
-            ),
-            onPressed: () async {
-              /// TODO: Add Saving State
-              await saveImage();
+          StreamBuilder<bool>(
+            initialData: false,
+            stream: editBloc.savingStream.stream,
+            builder: (context, snapshot) {
+              return FlatButton(
+                onPressed: !snapshot.data
+                    ? () async {
+                        editBloc.add(Save());
+                        await saveImage();
+                        editBloc.add(Saved());
+                      }
+                    : () {},
+                child: Text(
+                  snapshot.data ? "Saving" : "Save",
+                ),
+                color: Colors.black,
+                textColor: Colors.white,
+              );
             },
-            label: Text(
-              "Save",
-            ),
-            color: Colors.black,
-            textColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                16.0,
-              ),
-            ),
           ),
         ],
       ),
@@ -100,7 +119,20 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
       body: Center(
         child: AspectRatio(
           aspectRatio: widget.photo.width / widget.photo.height,
-          child: BlocBuilder<EditBloc, EditState>(
+          child: BlocConsumer<EditBloc, EditState>(
+            listener: (context, state) {
+              if (state is SaveComplete) {
+                Scaffold.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(
+                    content: Text("Saved"),
+                    duration: Duration(seconds: 3),
+                  ));
+              }
+            },
+            buildWhen: (previousState, currentState) {
+              return !(currentState is SaveComplete);
+            },
             bloc: editBloc,
             builder: (context, state) {
               return RepaintBoundary(
@@ -109,19 +141,20 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
                   alignment: Alignment.center,
                   fit: StackFit.passthrough,
                   children: <Widget>[
-                        Image.network(
-                          widget.photo.src.original,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (_, child, progress) => Center(
-                            child: ImageLoader(
-                              child: child,
-                              loadingProgress: progress,
-                            ),
+                        ColorFiltered(
+                          colorFilter: ColorFilter.mode(
+                            filterColor.withOpacity(filterOpacity),
+                            BlendMode.darken,
                           ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black38,
+                          child: Image.network(
+                            widget.photo.src.original,
+                            fit: BoxFit.contain,
+                            loadingBuilder: (_, child, progress) => Center(
+                              child: ImageLoader(
+                                child: child,
+                                loadingProgress: progress,
+                              ),
+                            ),
                           ),
                         ),
                       ] +
@@ -129,9 +162,45 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
                           ? state.quotes.map((quote) {
                               return DraggableQuote(
                                 quote: quote,
+                                onDelete: () {
+                                  editBloc.add(DeleteQuote(quote));
+                                },
+                                onEdit: () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ModalTextInput(
+                                        bloc: editBloc,
+                                        quote: quote,
+                                        isEdit: true,
+                                      ),
+                                    ),
+                                  );
+                                  setState(() {});
+                                },
                               );
                             }).toList()
-                          : []),
+                          : []) +
+                      [
+                        Positioned(
+                          right: 16.0,
+                          top: 16.0,
+                          child: Text(
+                            "Photo by - ${widget.photo.photographer}",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8.0,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 16.0,
+                          bottom: 16.0,
+                          child: Icon(
+                            Icons.hdr_strong,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                 ),
               );
             },
@@ -146,8 +215,14 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
-            (navbarItems.entries.toList()[index].value["callback"] as Function)(
-                context, editBloc);
+            if (index == 0) {
+              changeColorFilter();
+            } else if (index == 1) {
+              changeFilterOpacity();
+            } else {
+              (navbarItems.entries.toList()[index].value["callback"]
+                  as Function)(context, editBloc);
+            }
           },
           showSelectedLabels: true,
           showUnselectedLabels: true,
