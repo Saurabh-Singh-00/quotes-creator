@@ -65,7 +65,7 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
 
   void changeColorFilter() {
     setState(() {
-      filterColor = Colors.primaries[Random().nextInt(Colors.primaries.length)];
+      filterColor = Colors.accents[Random().nextInt(Colors.accents.length)];
     });
   }
 

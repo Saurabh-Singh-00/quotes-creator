@@ -74,6 +74,7 @@ class _DraggableQuoteState extends State<DraggableQuote> {
                   style: TextStyle(
                     color: widget.quote['color'],
                     fontSize: widget.quote['fontSize'],
+                    fontFamily: widget.quote['fontFamily'],
                   ),
                 ),
               ],

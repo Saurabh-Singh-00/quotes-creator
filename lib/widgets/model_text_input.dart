@@ -22,21 +22,37 @@ class _ModalTextInputState extends State<ModalTextInput> {
   TextEditingController tec;
   TextAlign textAlign = TextAlign.left;
   FontWeight fontWeight;
+
+  List<String> fontFamilies = [
+    "Anton",
+    "Lobster",
+    "DM Mono",
+    "Permanent Marker",
+    "Piedra",
+    "Pacifico"
+  ];
+
   List<TextAlign> alignOptions = [
     TextAlign.left,
     TextAlign.center,
     TextAlign.right
   ];
+
   int alignmentIndex = 0;
+  int fontIndex = 0;
+  String fontFamily = "Anton";
 
   @override
   void initState() {
     tec = TextEditingController();
     if (widget.quote != null) {
       tec.text = widget.quote['quote'];
-      textColor = widget.quote['color'];
+      textColor = widget.quote['color'] == Colors.white
+          ? Colors.black
+          : widget.quote['color'];
       fontSize = widget.quote['fontSize'];
       textAlign = widget.quote['align'];
+      fontFamily = widget.quote['fontFamily'];
     }
     super.initState();
   }
@@ -44,6 +60,12 @@ class _ModalTextInputState extends State<ModalTextInput> {
   void changeColor() {
     setState(() {
       textColor = Colors.primaries[Random().nextInt(Colors.primaries.length)];
+    });
+  }
+
+  void changeFont() {
+    setState(() {
+      fontFamily = fontFamilies[++fontIndex % fontFamilies.length];
     });
   }
 
@@ -70,12 +92,43 @@ class _ModalTextInputState extends State<ModalTextInput> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.grey,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          iconTheme: IconThemeData(color: Colors.black),
+          elevation: .0,
+        ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            // Formating Options
+            // TextField
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: TextFormField(
+                    controller: tec,
+                    cursorColor: textColor,
+                    expands: true,
+                    minLines: null,
+                    maxLines: null,
+                    textAlign: textAlign,
+                    scrollPhysics: BouncingScrollPhysics(),
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: fontFamily,
+                    ),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Your Quote Here!",
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
@@ -99,58 +152,46 @@ class _ModalTextInputState extends State<ModalTextInput> {
                     onPressed: () {
                       changeAlignment();
                     }),
+                IconButton(
+                    icon: Icon(Icons.font_download),
+                    onPressed: () {
+                      changeFont();
+                    }),
               ],
-            ),
-            // TextField
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  controller: tec,
-                  expands: true,
-                  minLines: null,
-                  maxLines: null,
-                  textAlign: textAlign,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Your Quote Here!",
-                  ),
-                ),
-              ),
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(
-            Icons.done_all,
-            color: Colors.white,
-          ),
-          backgroundColor: Colors.black,
-          onPressed: () {
-            if (widget.isEdit) {
-              setState(() {
-                widget.quote['quote'] = tec.value.text;
-                widget.quote['fontSize'] = fontSize;
-                widget.quote['color'] = textColor;
-                widget.quote['align'] = textAlign;
-              });
-            } else {
-              widget.bloc.add(AddQuote(
-                quote: tec.value.text,
-                fontSize: fontSize,
-                color: Colors.white,
-                align: textAlign,
-              ));
-            }
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 48.0),
+          child: FloatingActionButton(
+            child: Icon(
+              Icons.done_all,
+              color: Colors.white,
+            ),
+            backgroundColor: Colors.black,
+            onPressed: () {
+              if (widget.isEdit) {
+                setState(() {
+                  widget.quote['quote'] = tec.value.text;
+                  widget.quote['fontSize'] = fontSize;
+                  widget.quote['color'] =
+                      textColor == Colors.black ? Colors.white : textColor;
+                  widget.quote['align'] = textAlign;
+                  widget.quote['fontFamily'] = fontFamily;
+                });
+              } else {
+                widget.bloc.add(AddQuote(
+                  quote: tec.value.text,
+                  fontSize: fontSize,
+                  color: textColor == Colors.black ? Colors.white : textColor,
+                  align: textAlign,
+                  fontFamily: fontFamily,
+                ));
+              }
 
-            Navigator.of(context).pop();
-          },
+              Navigator.of(context).pop();
+            },
+          ),
         ),
       ),
     );

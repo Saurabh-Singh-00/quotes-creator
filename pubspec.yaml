@@ -41,6 +41,7 @@ dev_dependencies:
   build_runner: any
   json_serializable: any
   flutter_native_splash: any
+  permission_handler: any
   flutter_launcher_icons: ^0.7.5
 
 flutter_native_splash:
@@ -98,6 +99,21 @@ flutter:
         - asset: fonts/DM_Mono/DMMono-MediumItalic.ttf
           weight: 400
           style: italic
+    - family: Anton
+      fonts:
+        - asset: fonts/Anton/Anton-Regular.ttf
+    - family: Lobster
+      fonts:
+        - asset: fonts/Lobster/Lobster-Regular.ttf
+    - family: Permanent Marker
+      fonts:
+        - asset: fonts/Permanent_Marker/PermanentMarker-Regular.ttf
+    - family: Piedra
+      fonts:
+        - asset: fonts/Piedra/Piedra-Regular.ttf
+    - family: Pacifico
+      fonts:
+        - asset: fonts/Pacifico/Pacifico-Regular.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

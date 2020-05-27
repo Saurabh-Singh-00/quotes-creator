@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:image/image.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Storage {
   Storage._();
@@ -15,7 +16,9 @@ class Storage {
   static Future<Directory> get externalStorageDirectory async {
     Directory dir;
     await getExternalStorageDirectory().then((directory) async {
-      dir = Directory(directory.path.substring(0, 20) + "$APP_FOLDER/");
+      String androidPath =
+          Directory(directory.parent.parent.parent.parent.path).path;
+      dir = Directory([androidPath, "$APP_FOLDER/"].join("/"));
       if (!await dir.exists()) {
         await dir.create(recursive: true);
       }
@@ -29,6 +32,10 @@ class Storage {
   }
 
   static Future<bool> saveImage(Uint8List file) async {
+    Permission permission = Permission.storage;
+    while (!(await permission.isGranted)) {
+      await permission.request();
+    }
     bool saved = false;
     try {
       String imagePath = await externalStoragePath;

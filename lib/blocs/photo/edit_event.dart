@@ -7,10 +7,13 @@ class AddQuote extends EditEvent {
   Color color = Colors.white;
   double fontSize = 16.0;
   TextAlign align = TextAlign.left;
+  String fontFamily = "Anton";
 
-  AddQuote({this.color, this.fontSize, this.quote, this.align});
+  AddQuote(
+      {this.color, this.fontSize, this.quote, this.align, this.fontFamily});
 
-  AddQuote.copyWith({this.quote, this.color, this.fontSize, this.align});
+  AddQuote.copyWith(
+      {this.quote, this.color, this.fontSize, this.align, this.fontFamily});
 
   Map toJson() {
     return {
@@ -18,6 +21,7 @@ class AddQuote extends EditEvent {
       "color": this.color,
       "fontSize": this.fontSize,
       "align": this.align,
+      "fontFamily": this.fontFamily,
     };
   }
 }
