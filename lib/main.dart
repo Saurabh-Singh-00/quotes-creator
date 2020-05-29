@@ -18,9 +18,9 @@ class InstaCreator extends StatelessWidget {
         BlocProvider<PhotoBloc>(
           create: (context) => PhotoBloc()..add(FetchPhotos()),
         ),
-        BlocProvider<UserBloc>(
-          create: (context) => UserBloc()..add(AuthenticateUser()),
-        ),
+        // BlocProvider<UserBloc>(
+        //   create: (context) => UserBloc()..add(AuthenticateUser()),
+        // ),
         BlocProvider<SearchBloc>(
           create: (context) => SearchBloc(),
         ),

@@ -1,6 +1,9 @@
 import 'package:insta_creator/models/photo.dart';
+import 'package:insta_creator/models/quote.dart';
 
-abstract class EditState {}
+abstract class EditState {
+  List<Quote> quotes;
+}
 
 class EditUninitialized extends EditState {
   final Photo photo;
@@ -9,11 +12,11 @@ class EditUninitialized extends EditState {
 }
 
 class Editing extends EditState {
-  final List<Map> quotes;
+  final List<Quote> quotes;
 
   Editing({this.quotes});
 
-  Editing.copyWith({List<Map> quotes}) : this.quotes = quotes;
+  Editing.copyWith({List<Quote> quotes}) : this.quotes = quotes;
 }
 
 class SaveComplete extends EditState {}

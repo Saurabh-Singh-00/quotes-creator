@@ -10,8 +10,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final UserRepository repository = UserRepository();
 
   @override
-  UserState get initialState => AuthenticatedUser();
+  UserState get initialState => UnauthenticatedUser();
+
+  Stream<UserState> _mapAuthenticateUserToState() async* {
+    bool auth = await repository.authenticate();
+    if (auth) {
+      yield AuthenticatedUser();
+    } else {
+      yield UnauthenticatedUser();
+    }
+  }
 
   @override
-  Stream<UserState> mapEventToState(UserEvent event) async* {}
+  Stream<UserState> mapEventToState(UserEvent event) async* {
+    if (event is AuthenticateUser) {
+      yield* _mapAuthenticateUserToState();
+    }
+  }
 }

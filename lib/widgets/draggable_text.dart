@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:insta_creator/models/quote.dart';
 
 class DraggableQuote extends StatefulWidget {
-  final Map quote;
+  final Quote quote;
   final Function onDelete;
   final Function onEdit;
 
@@ -68,13 +69,13 @@ class _DraggableQuoteState extends State<DraggableQuote> {
                       )
                     : Container(),
                 Text(
-                  "${widget.quote['quote']}",
-                  textAlign: widget.quote['align'],
+                  "${widget.quote.text}",
+                  textAlign: widget.quote.textAlign.toTextAlignment(),
                   maxLines: 99,
                   style: TextStyle(
-                    color: widget.quote['color'],
-                    fontSize: widget.quote['fontSize'],
-                    fontFamily: widget.quote['fontFamily'],
+                    color: widget.quote.color.toColor(),
+                    fontSize: widget.quote.fontSize,
+                    fontFamily: widget.quote.fontFamily,
                   ),
                 ),
               ],

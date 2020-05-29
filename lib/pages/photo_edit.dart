@@ -26,6 +26,7 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
   GlobalKey _canvasKey = GlobalKey();
   double filterOpacity = 0.35;
   Color filterColor = Colors.black;
+  bool showTextInput = false;
 
   final Map<String, Map<String, dynamic>> navbarItems = {
     "Change Filter": {
@@ -39,13 +40,15 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
     "Write": {
       "icon": Icons.text_fields,
       "callback": (BuildContext context, EditBloc bloc) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ModalTextInput(
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return ModalTextInput(
               bloc: bloc,
               isEdit: false,
-            ),
-          ),
+            );
+          },
         );
       },
     },
@@ -166,13 +169,13 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
                                   editBloc.add(DeleteQuote(quote));
                                 },
                                 onEdit: () async {
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => ModalTextInput(
-                                        bloc: editBloc,
-                                        quote: quote,
-                                        isEdit: true,
-                                      ),
+                                  await showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (_) => ModalTextInput(
+                                      bloc: editBloc,
+                                      quote: quote,
+                                      isEdit: true,
                                     ),
                                   );
                                   setState(() {});
@@ -189,6 +192,7 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 8.0,
+                              fontFamily: 'Lobster',
                             ),
                           ),
                         ),

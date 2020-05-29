@@ -34,6 +34,7 @@ dependencies:
   json_annotation: any
   rxdart: any
   flutter_staggered_grid_view: any
+  shared_preferences: any
 
 dev_dependencies:
   flutter_test:

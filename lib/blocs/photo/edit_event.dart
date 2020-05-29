@@ -1,29 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:insta_creator/models/quote.dart';
 
 abstract class EditEvent {}
 
 class AddQuote extends EditEvent {
-  final String quote;
-  Color color = Colors.white;
-  double fontSize = 16.0;
-  TextAlign align = TextAlign.left;
-  String fontFamily = "Anton";
+  final Quote quote;
 
-  AddQuote(
-      {this.color, this.fontSize, this.quote, this.align, this.fontFamily});
+  AddQuote({this.quote});
 
-  AddQuote.copyWith(
-      {this.quote, this.color, this.fontSize, this.align, this.fontFamily});
-
-  Map toJson() {
-    return {
-      "quote": this.quote,
-      "color": this.color,
-      "fontSize": this.fontSize,
-      "align": this.align,
-      "fontFamily": this.fontFamily,
-    };
-  }
+  AddQuote.copyWith({this.quote});
 }
 
 class Save extends EditEvent {}

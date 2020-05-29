@@ -28,20 +28,24 @@ class EditBloc extends Bloc<EditEvent, EditState> {
   Stream<EditState> mapEventToState(EditEvent event) async* {
     dynamic currentState = state;
     if (event is AddQuote) {
+      if (event.quote.text == null || event.quote.text.isEmpty) {
+        yield currentState;
+        return;
+      }
       if (currentState is EditUninitialized) {
-        yield Editing(quotes: [event.toJson()]);
+        yield Editing(quotes: [event.quote]);
         return;
       }
       if (currentState is Editing) {
-        yield Editing.copyWith(quotes: currentState.quotes + [event.toJson()]);
+        yield Editing.copyWith(quotes: currentState.quotes + [event.quote]);
       }
       if (currentState is SaveComplete) {
         dynamic savedState = editStates.removeLast();
         if (savedState is EditUninitialized) {
-          yield Editing(quotes: [event.toJson()]);
+          yield Editing(quotes: [event.quote]);
           return;
         } else if (savedState is Editing) {
-          yield Editing.copyWith(quotes: savedState.quotes + [event.toJson()]);
+          yield Editing.copyWith(quotes: savedState.quotes + [event.quote]);
         }
       }
     }

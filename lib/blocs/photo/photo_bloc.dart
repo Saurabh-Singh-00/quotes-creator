@@ -28,46 +28,60 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     );
   }
 
+  Stream<PhotoState> _mapFetchPhotosToPhotoUninitialized() async* {
+    Map res = await repository.fetchPhotos();
+    yield PhotoLoaded(
+      photos: res['photos'],
+      hasReachedMax: res['hasReachedMax'],
+      nextPage: res['nextPage'],
+    );
+  }
+
+  Stream<PhotoState> _mapFetchPhotosToPhotoLoaded() async* {
+    PhotoLoaded currentState = state;
+    if (!currentState.hasReachedMax) {
+      Map res = await repository.fetchPhotos(url: currentState.nextPage);
+      if ((res['photos'] as List).isEmpty) {
+        yield currentState.copyWith(
+            hasReachedMax: true, photos: currentState.photos, nextPage: null);
+      } else {
+        yield PhotoLoaded(
+          photos: currentState.photos + res['photos'],
+          hasReachedMax: res['hasReachedMax'],
+          nextPage: res['nextPage'],
+        );
+      }
+    }
+  }
+
+  void _mapLikePhotoToState(LikePhoto event) {
+    if (repository.likedPhotos.contains(event.photo.id)) {
+      repository.likedPhotos.remove(event.photo.id);
+    } else {
+      repository.likedPhotos.add(event.photo.id);
+    }
+    event.photo.isLiked = !event.photo.isLiked;
+    likedPhotos$.add(event.photo);
+  }
+
   @override
   Stream<PhotoState> mapEventToState(PhotoEvent event) async* {
     PhotoState currentState = state;
     if (event is FetchPhotos) {
       try {
         if (currentState is PhotoUninitialized) {
-          Map res = await repository.fetchPhotos();
-          yield PhotoLoaded(
-              photos: res['photos'],
-              hasReachedMax: res['hasReachedMax'],
-              nextPage: res['nextPage']);
+          yield* _mapFetchPhotosToPhotoUninitialized();
           return;
         }
         if (currentState is PhotoLoaded) {
-          if (!currentState.hasReachedMax) {
-            Map res = await repository.fetchPhotos(url: currentState.nextPage);
-            yield (res['photos'] as List).isEmpty
-                ? currentState.copyWith(
-                    hasReachedMax: true,
-                    photos: currentState.photos,
-                    nextPage: null)
-                : PhotoLoaded(
-                    photos: currentState.photos + res['photos'],
-                    hasReachedMax: res['hasReachedMax'],
-                    nextPage: res['nextPage'],
-                  );
-          }
+          yield* _mapFetchPhotosToPhotoLoaded();
         }
       } catch (e) {
         yield PhotoError(e.toString());
       }
     }
     if (event is LikePhoto) {
-      if (repository.likedPhotos.contains(event.photo.id)) {
-        repository.likedPhotos.remove(event.photo.id);
-      } else {
-        repository.likedPhotos.add(event.photo.id);
-      }
-      event.photo.isLiked = !event.photo.isLiked;
-      likedPhotos$.add(event.photo);
+      _mapLikePhotoToState(event);
     }
   }
 }
