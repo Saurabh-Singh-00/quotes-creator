@@ -24,7 +24,7 @@ class PhotoEditPage extends StatefulWidget {
 class _PhotoEditPageState extends State<PhotoEditPage> {
   EditBloc editBloc;
   GlobalKey _canvasKey = GlobalKey();
-  double filterOpacity = 0.35;
+  double filterOpacity = 0.0;
   Color filterColor = Colors.black;
   bool showTextInput = false;
 

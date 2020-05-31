@@ -36,9 +36,17 @@ class Quote {
   double fontSize;
   String fontFamily;
   String textAlign;
+  double xCord = 0.0;
+  double yCord = 0.0;
 
   Quote(
-      {this.text, this.color, this.fontSize, this.fontFamily, this.textAlign});
+      {this.text,
+      this.color,
+      this.fontSize,
+      this.fontFamily,
+      this.textAlign,
+      this.xCord,
+      this.yCord});
 
   Quote.fromJson(Map<String, dynamic> json) {
     text = json['text'];
@@ -46,6 +54,8 @@ class Quote {
     fontSize = json['fontSize'];
     fontFamily = json['fontFamily'];
     textAlign = json['textAlign'];
+    xCord = json['xCord'];
+    yCord = json['yCord'];
   }
 
   Map<String, dynamic> toJson() {
@@ -55,6 +65,8 @@ class Quote {
     data['fontSize'] = this.fontSize;
     data['fontFamily'] = this.fontFamily;
     data['textAlign'] = this.textAlign;
+    data['xCord'] = this.xCord;
+    data['yCord'] = this.yCord;
     return data;
   }
 }

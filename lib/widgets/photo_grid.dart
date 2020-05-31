@@ -12,7 +12,9 @@ class GridLoader extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
       child: Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(Colors.black),
+        ),
       ),
     );
   }

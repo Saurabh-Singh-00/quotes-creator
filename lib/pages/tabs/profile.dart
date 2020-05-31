@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:insta_creator/blocs/user/user_bloc.dart';
 import 'package:insta_creator/widgets/photo_grid.dart';
 
 class ProfileTab extends StatefulWidget {
@@ -28,10 +30,10 @@ class _ProfileTabState extends State<ProfileTab> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "@Saurabh Singh",
+              "@${BlocProvider.of<UserBloc>(context).repository.username}",
               style: TextStyle(
                 color: Colors.black,
-                fontWeight: FontWeight.bold,
+                fontFamily: 'Pacifico',
                 fontSize: 24.0,
               ),
             ),

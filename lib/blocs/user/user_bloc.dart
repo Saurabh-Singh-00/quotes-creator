@@ -10,9 +10,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final UserRepository repository = UserRepository();
 
   @override
-  UserState get initialState => UnauthenticatedUser();
+  UserState get initialState => AuthenticationUninitialized();
 
   Stream<UserState> _mapAuthenticateUserToState() async* {
+    yield AuthenticatingUser();
     bool auth = await repository.authenticate();
     if (auth) {
       yield AuthenticatedUser();
@@ -21,10 +22,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
+  Stream<UserState> _mapSaveUserPreferenceToState(
+      SaveUserPreference event) async* {
+    yield SavingUserPreference();
+    await repository.saveAuthPreference(
+        {"isAuthenticated": true, "username": event.username});
+    yield AuthenticatedUser();
+  }
+
   @override
   Stream<UserState> mapEventToState(UserEvent event) async* {
     if (event is AuthenticateUser) {
       yield* _mapAuthenticateUserToState();
+    }
+    if (event is SaveUserPreference) {
+      yield* _mapSaveUserPreferenceToState(event);
     }
   }
 }

@@ -18,15 +18,22 @@ class _DraggableQuoteState extends State<DraggableQuote> {
   bool optionsVisible = false;
 
   @override
+  void initState() {
+    xCord = widget.quote.xCord;
+    yCord = widget.quote.yCord;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: yCord,
-      left: xCord,
+      top: widget.quote.yCord,
+      left: widget.quote.xCord,
       child: GestureDetector(
         onPanUpdate: (DragUpdateDetails dragDetails) {
           setState(() {
-            xCord += dragDetails.delta.dx;
-            yCord += dragDetails.delta.dy;
+            widget.quote.xCord += dragDetails.delta.dx;
+            widget.quote.yCord += dragDetails.delta.dy;
           });
         },
         onTap: () {

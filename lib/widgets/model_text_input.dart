@@ -103,6 +103,7 @@ class _ModalTextInputState extends State<ModalTextInput> {
           children: <Widget>[
             Flexible(
               flex: 1,
+              fit: FlexFit.loose,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Center(
@@ -208,6 +209,8 @@ class _ModalTextInputState extends State<ModalTextInput> {
                       fontSize: fontSize,
                       fontFamily: fontFamily,
                       textAlign: textAlign.toString(),
+                      xCord: 0.0,
+                      yCord: 0.0,
                     ),
                   ),
                 );
