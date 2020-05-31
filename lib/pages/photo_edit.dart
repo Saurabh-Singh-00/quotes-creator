@@ -150,7 +150,9 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
                             BlendMode.darken,
                           ),
                           child: Image.network(
-                            widget.photo.src.original,
+                            widget.photo.src != null
+                                ? widget.photo.src.original
+                                : widget.photo.srcFromDbOriginal,
                             fit: BoxFit.contain,
                             loadingBuilder: (_, child, progress) => Center(
                               child: ImageLoader(

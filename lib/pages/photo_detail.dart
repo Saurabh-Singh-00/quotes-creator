@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/photo_bloc.dart';
 import 'package:insta_creator/models/photo.dart';
 import 'package:insta_creator/pages/photo_edit.dart';
+import 'package:insta_creator/widgets/detail.dart';
 import 'package:insta_creator/widgets/image_loader.dart';
 
 class PhotoDetailPage extends StatelessWidget {
@@ -13,7 +14,19 @@ class PhotoDetailPage extends StatelessWidget {
   final Map<String, Map<String, dynamic>> navbarItems = {
     "Details": {
       "icon": Icons.info_outline,
-      "callback": (BuildContext context, Photo p) {},
+      "callback": (BuildContext context, Photo p) {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return Detail(photo: p);
+          },
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(12.0),
+            topRight: Radius.circular(12.0),
+          )),
+        );
+      },
     },
     "Favourite": {
       "icon": Icons.favorite_border,
@@ -53,7 +66,7 @@ class PhotoDetailPage extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Center(
         child: Image.network(
-          photo.src.original,
+          photo.src != null ? photo.src.original : photo.srcFromDbOriginal,
           fit: BoxFit.fill,
           loadingBuilder: (context, child, loadingProgress) => ImageLoader(
             child: child,

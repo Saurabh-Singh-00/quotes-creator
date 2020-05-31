@@ -35,6 +35,8 @@ dependencies:
   rxdart: any
   flutter_staggered_grid_view: any
   shared_preferences: any
+  sqflite: any
+  image_picker: any
 
 dev_dependencies:
   flutter_test:

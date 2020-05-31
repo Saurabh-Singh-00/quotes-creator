@@ -5,7 +5,10 @@ import 'package:insta_creator/repository/photo_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final PhotoRepository repository = PhotoRepository();
+  final PhotoRepository repository;
+
+  SearchBloc({PhotoRepository repository})
+      : this.repository = repository ?? PhotoRepository();
 
   @override
   SearchState get initialState => SearchUninitialized();

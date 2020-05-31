@@ -51,7 +51,7 @@ class PhotoCard extends StatelessWidget {
                 onDoubleTap: () => onDoubleTap(context),
                 onTap: () => onTap(context),
                 child: Image.network(
-                  photo.src.medium,
+                  photo.src != null ? photo.src.medium : photo.srcFromDbMedium,
                   fit: BoxFit.cover,
                   loadingBuilder: loadingBuilder,
                 ),

@@ -28,8 +28,10 @@ in _key.dart file
 
 - [x] ~~Discover~~
 - [x] ~~Search~~
-- [ ] Add to Favourites
+- [x] ~~Add to Favourites~~
 - [ ] Download Image
 - [x] ~~Edit Image~~
 - [x] ~~Save Edited Image~~
 - [ ] User Profile
+- [ ] Share Image
+- [ ] Edit On Device Image

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/search_bloc.dart';
 import 'package:insta_creator/blocs/photo/search_event.dart';
 import 'package:insta_creator/pages/tabs/discover.dart';
+import 'package:insta_creator/pages/tabs/favourites.dart';
 import 'package:insta_creator/pages/tabs/profile.dart';
 import 'package:insta_creator/pages/tabs/search.dart';
 
@@ -36,7 +37,7 @@ class _HomePageState extends State<HomePage>
     DiscoverTab(),
     SearchTab(),
     Container(),
-    Container(),
+    FavouritesTab(),
     ProfileTab(),
   ];
 

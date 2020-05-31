@@ -10,9 +10,12 @@ export './photo_state.dart';
 export './photo_event.dart';
 
 class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
-  final PhotoRepository repository = PhotoRepository();
+  final PhotoRepository repository;
   final StreamController<Photo> likedPhotos$ =
       StreamController<Photo>.broadcast();
+
+  PhotoBloc({PhotoRepository repository})
+      : this.repository = repository ?? PhotoRepository();
 
   @override
   PhotoState get initialState => PhotoUninitialized();
@@ -54,13 +57,8 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     }
   }
 
-  void _mapLikePhotoToState(LikePhoto event) {
-    if (repository.likedPhotos.contains(event.photo.id)) {
-      repository.likedPhotos.remove(event.photo.id);
-    } else {
-      repository.likedPhotos.add(event.photo.id);
-    }
-    event.photo.isLiked = !event.photo.isLiked;
+  void _mapLikePhotoToState(LikePhoto event) async {
+    await repository.likePhoto(event.photo);
     likedPhotos$.add(event.photo);
   }
 

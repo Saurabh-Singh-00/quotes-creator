@@ -18,6 +18,8 @@ Photo _$PhotoFromJson(Map<String, dynamic> json) {
     src: json['src'] == null
         ? null
         : Src.fromJson(json['src'] as Map<String, dynamic>),
+    srcFromDbMedium: json['src_from_db_medium'] as String,
+    srcFromDbOriginal: json['src_from_db_original'] as String,
   )..isLiked = json['is_liked'] as bool ?? false;
 }
 
@@ -31,6 +33,8 @@ Map<String, dynamic> _$PhotoToJson(Photo instance) => <String, dynamic>{
       'photographer_id': instance.photographerId,
       'src': instance.src,
       'is_liked': instance.isLiked,
+      'src_from_db_medium': instance.src.medium,
+      'src_from_db_original': instance.src.original,
     };
 
 Src _$SrcFromJson(Map<String, dynamic> json) {
