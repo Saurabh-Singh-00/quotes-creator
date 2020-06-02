@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/edit_bloc.dart';
+import 'package:insta_creator/blocs/photo/photo_bloc.dart';
 import 'package:insta_creator/models/photo.dart';
 import 'package:insta_creator/services/storage.dart';
 import 'package:insta_creator/widgets/draggable_text.dart';
@@ -27,6 +28,7 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
   double filterOpacity = 0.0;
   Color filterColor = Colors.black;
   bool showTextInput = false;
+  bool showFilterOpacitySlider = false;
 
   final Map<String, Map<String, dynamic>> navbarItems = {
     "Change Filter": {
@@ -78,13 +80,15 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
     });
   }
 
-  Future<bool> saveImage() async {
+  Future<String> saveImage() async {
     RenderRepaintBoundary boundary =
         _canvasKey.currentContext.findRenderObject();
     ui.Image image = await boundary.toImage(pixelRatio: 3.0);
     ByteData bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    return await Storage.saveImage(
+    String path = await Storage.saveImage(
         bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
+    BlocProvider.of<PhotoBloc>(context).repository.addPhotoToSavedList(path);
+    return path;
   }
 
   @override

@@ -32,8 +32,9 @@ class Detail extends StatelessWidget {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.grey,
+                  child: Icon(
+                    Icons.account_circle,
+                    size: 48.0,
                   ),
                 ),
                 Expanded(

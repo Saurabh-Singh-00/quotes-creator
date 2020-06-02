@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:insta_creator/blocs/photo/photo_bloc.dart';
 import 'package:insta_creator/blocs/user/user_bloc.dart';
-import 'package:insta_creator/widgets/photo_grid.dart';
 
 class ProfileTab extends StatefulWidget {
   @override
@@ -11,41 +13,104 @@ class ProfileTab extends StatefulWidget {
 class _ProfileTabState extends State<ProfileTab> {
   final ScrollController scrollController = ScrollController();
 
+  Widget loadingBuilder(
+      BuildContext context, Widget child, ImageChunkEvent progress) {
+    if (progress == null) return child;
+    return Center(
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(Colors.black),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.grey[300],
-              radius: MediaQuery.of(context).size.width * 0.15,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              "@${BlocProvider.of<UserBloc>(context).repository.username}",
-              style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'Pacifico',
-                fontSize: 24.0,
+    return BlocBuilder<PhotoBloc, PhotoState>(
+      bloc: BlocProvider.of<PhotoBloc>(context),
+      builder: (context, state) {
+        return SingleChildScrollView(
+          key: PageStorageKey('__user_photo_page_key__'),
+          scrollDirection: Axis.vertical,
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.grey[300],
+                  radius: MediaQuery.of(context).size.width * 0.15,
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  "@${BlocProvider.of<UserBloc>(context).repository.username}",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Pacifico',
+                    fontSize: 24.0,
+                  ),
+                ),
+              ),
+              FutureBuilder(
+                future: BlocProvider.of<PhotoBloc>(context)
+                    .repository
+                    .fetchUserPhotos(),
+                builder: (context, AsyncSnapshot<List<String>> snap) {
+                  if (snap.connectionState == ConnectionState.done) {
+                    if (snap.hasError) {
+                      return Center(
+                        child: Text("Oops! Some Error occured."),
+                      );
+                    }
+                    if (snap.data.length == 0) {
+                      return Center(
+                        child: Text("No photos to display"),
+                      );
+                    }
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        childAspectRatio: 1.0,
+                        mainAxisSpacing: 4.0,
+                        crossAxisSpacing: 4.0,
+                      ),
+                      itemCount: snap.data.length,
+                      itemBuilder: (context, index) {
+                        return Image(
+                          image: FileImage(File(snap.data[index])),
+                          fit: BoxFit.cover,
+                          loadingBuilder: loadingBuilder,
+                        );
+                      },
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      physics: BouncingScrollPhysics(),
+                    );
+                  } else if (snap.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(
+                          Colors.black,
+                        ),
+                      ),
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(
+                        Colors.black,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-          PhotoGrid(
-            photos: [],
-            scrollController: scrollController,
-            hasReachedMax: true,
-            storageKey: '__profile_page_key__',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

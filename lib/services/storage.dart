@@ -14,6 +14,10 @@ class Storage {
   static const APP_FOLDER = "Creator";
 
   static Future<Directory> get externalStorageDirectory async {
+    Permission permission = Permission.storage;
+    while (!(await permission.isGranted)) {
+      await permission.request();
+    }
     Directory dir;
     await getExternalStorageDirectory().then((directory) async {
       String androidPath =
@@ -31,12 +35,8 @@ class Storage {
     return dir.path;
   }
 
-  static Future<bool> saveImage(Uint8List file) async {
-    Permission permission = Permission.storage;
-    while (!(await permission.isGranted)) {
-      await permission.request();
-    }
-    bool saved = false;
+  static Future<String> saveImage(Uint8List file) async {
+    String savedPath;
     try {
       String imagePath = await externalStoragePath;
       imagePath += "${DateTime.now().millisecondsSinceEpoch}.png";
@@ -45,10 +45,21 @@ class Storage {
       await imageFile.writeAsBytes(encodePng(
         image,
       ));
-      saved = true;
+      savedPath = imageFile.path;
     } catch (e) {
       print(e);
     }
-    return saved;
+    return savedPath;
+  }
+
+  static Future<List<FileSystemEntity>> getExternalPhotosPath() async {
+    Directory imageDirectory = await externalStorageDirectory;
+    List<FileSystemEntity> images = [];
+    try {
+      images = imageDirectory.listSync(recursive: true, followLinks: false);
+    } catch (e) {
+      print(e);
+    }
+    return images;
   }
 }

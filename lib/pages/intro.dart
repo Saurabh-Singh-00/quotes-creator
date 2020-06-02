@@ -124,7 +124,10 @@ class SetUserPreferencePage extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
                     onPressed: () {
-                      if (controller.value.text.isEmpty) {
+                      if (controller.value.text
+                          .trimRight()
+                          .trimLeft()
+                          .isEmpty) {
                         Scaffold.of(context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(SnackBar(

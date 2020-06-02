@@ -42,6 +42,9 @@ class Photo {
   bool operator ==(covariant Photo other) {
     return this.id == other.id;
   }
+
+  @override
+  int get hashCode => super.hashCode;
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)

@@ -56,13 +56,13 @@ class EditBloc extends Bloc<EditEvent, EditState> {
       }
     }
     if (event is Save) {
-      savingStream.add(true);
+      savingStream.sink.add(true);
     }
     if (event is Saved) {
       if (currentState is Editing || currentState is EditUninitialized) {
         editStates.add(currentState);
       }
-      savingStream.add(false);
+      savingStream.sink.add(false);
       yield SaveComplete();
     }
   }

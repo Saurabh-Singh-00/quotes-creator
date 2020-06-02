@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:insta_creator/models/photo.dart';
 import 'package:insta_creator/services/api.dart';
 import 'package:insta_creator/secrets/keys.dart';
 import 'package:insta_creator/services/db.dart';
+import 'package:insta_creator/services/storage.dart';
 import 'package:sqflite/sqflite.dart';
 
 class PhotoRepository {
@@ -13,6 +16,7 @@ class PhotoRepository {
   final String searchUrl = "https://api.pexels.com/v1/search?page=1&query=";
   final Set likedPhotos = Set();
   final List<Photo> likedPhotosList = [];
+  List<String> userPhotosList;
 
   Future likePhoto(Photo photo) async {
     Database db = await dbClient.db;
@@ -86,5 +90,24 @@ class PhotoRepository {
       likedPhotos.add(json['id']);
     }
     return likedPhotosList;
+  }
+
+  Future<List<String>> fetchUserPhotos() async {
+    if (userPhotosList == null) {
+      userPhotosList = [];
+      List<FileSystemEntity> imageFiles = await Storage.getExternalPhotosPath();
+      for (FileSystemEntity file in imageFiles) {
+        userPhotosList.add(file.path);
+      }
+    }
+    return userPhotosList;
+  }
+
+  void addPhotoToSavedList(String path) async {
+    if (userPhotosList == null) {
+      await fetchUserPhotos();
+    } else {
+      userPhotosList.add(path);
+    }
   }
 }
