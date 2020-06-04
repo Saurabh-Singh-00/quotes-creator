@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/photo_bloc.dart';
 import 'package:insta_creator/blocs/user/user_bloc.dart';
+import 'package:insta_creator/pages/photo_view.dart';
 
 class ProfileTab extends StatefulWidget {
   @override
@@ -39,8 +40,11 @@ class _ProfileTabState extends State<ProfileTab> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: CircleAvatar(
-                  backgroundColor: Colors.grey[300],
                   radius: MediaQuery.of(context).size.width * 0.15,
+                  backgroundColor: Colors.grey,
+                  backgroundImage: AssetImage(
+                    BlocProvider.of<UserBloc>(context).repository.avatar,
+                  ),
                 ),
               ),
               Padding(
@@ -74,20 +78,31 @@ class _ProfileTabState extends State<ProfileTab> {
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         childAspectRatio: 1.0,
-                        mainAxisSpacing: 4.0,
-                        crossAxisSpacing: 4.0,
+                        mainAxisSpacing: 2.0,
+                        crossAxisSpacing: 2.0,
                       ),
                       itemCount: snap.data.length,
                       itemBuilder: (context, index) {
-                        return Image(
-                          image: FileImage(File(snap.data[index])),
-                          fit: BoxFit.cover,
-                          loadingBuilder: loadingBuilder,
+                        return InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => PhotoView(
+                                  path: snap.data[index],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Image(
+                            image: FileImage(File(snap.data[index])),
+                            fit: BoxFit.cover,
+                            loadingBuilder: loadingBuilder,
+                          ),
                         );
                       },
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
-                      physics: BouncingScrollPhysics(),
+                      physics: NeverScrollableScrollPhysics(),
                     );
                   } else if (snap.connectionState == ConnectionState.waiting) {
                     return Center(

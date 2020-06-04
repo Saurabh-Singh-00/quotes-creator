@@ -13,7 +13,7 @@ class PhotoDetailPage extends StatelessWidget {
 
   final Map<String, Map<String, dynamic>> navbarItems = {
     "Details": {
-      "icon": Icons.info_outline,
+      "icon": (BuildContext context) => Icon(Icons.info_outline),
       "callback": (BuildContext context, Photo p) {
         showModalBottomSheet(
           context: context,
@@ -29,13 +29,13 @@ class PhotoDetailPage extends StatelessWidget {
       },
     },
     "Favourite": {
-      "icon": Icons.favorite_border,
+      "icon": (BuildContext context) => Icon(Icons.favorite_border),
       "callback": (BuildContext context, Photo p) {
         BlocProvider.of<PhotoBloc>(context).add(LikePhoto(p));
       },
     },
     "Edit": {
-      "icon": Icons.mode_edit,
+      "icon": (BuildContext context) => Icon(Icons.mode_edit),
       "callback": (BuildContext context, Photo p) {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -46,13 +46,25 @@ class PhotoDetailPage extends StatelessWidget {
         );
       },
     },
-    "Share": {
-      "icon": Icons.share,
-      "callback": (BuildContext context, Photo p) {},
-    },
     "Save": {
-      "icon": Icons.save_alt,
-      "callback": (BuildContext context, Photo p) {},
+      "icon": (BuildContext context) {
+        return StreamBuilder(
+          stream: BlocProvider.of<PhotoBloc>(context).downloadPhoto$.stream,
+          initialData: false,
+          builder: (_, snap) {
+            return snap.data
+                ? CircularProgressIndicator()
+                : Icon(
+                    Icons.save_alt,
+                    color: snap.data ? Colors.red : Colors.white,
+                  );
+          },
+        );
+      },
+      "callback": (BuildContext context, Photo p) {
+        BlocProvider.of<PhotoBloc>(context).add(
+            DownloadPhoto(p.src != null ? p.src.large2x : p.srcFromDbMedium));
+      }
     }
   };
 
@@ -66,7 +78,7 @@ class PhotoDetailPage extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Center(
         child: Image.network(
-          photo.src != null ? photo.src.original : photo.srcFromDbOriginal,
+          photo.src != null ? photo.src.large : photo.srcFromDbOriginal,
           fit: BoxFit.fill,
           loadingBuilder: (context, child, loadingProgress) => ImageLoader(
             child: child,
@@ -110,7 +122,7 @@ class PhotoDetailPage extends StatelessWidget {
                             : Icon(Icons.favorite_border);
                       },
                     )
-                  : Icon(element.value["icon"]),
+                  : element.value["icon"](context),
               title: Text(element.key),
             );
           }).toList(),

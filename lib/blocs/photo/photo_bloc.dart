@@ -13,12 +13,21 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
   final PhotoRepository repository;
   final StreamController<Photo> likedPhotos$ =
       StreamController<Photo>.broadcast();
+  final StreamController<bool> downloadPhoto$ =
+      StreamController<bool>.broadcast();
 
   PhotoBloc({PhotoRepository repository})
       : this.repository = repository ?? PhotoRepository();
 
   @override
   PhotoState get initialState => PhotoUninitialized();
+
+  @override
+  Future<void> close() {
+    likedPhotos$.close();
+    downloadPhoto$.close();
+    return super.close();
+  }
 
   @override
   Stream<Transition<PhotoEvent, PhotoState>> transformEvents(
@@ -32,16 +41,24 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
   }
 
   Stream<PhotoState> _mapFetchPhotosToPhotoUninitialized() async* {
-    Map res = await repository.fetchPhotos();
-    yield PhotoLoaded(
-      photos: res['photos'],
-      hasReachedMax: res['hasReachedMax'],
-      nextPage: res['nextPage'],
-    );
+    try {
+      Map res = await repository.fetchPhotos();
+      yield PhotoLoaded(
+        photos: res['photos'],
+        hasReachedMax: res['hasReachedMax'],
+        nextPage: res['nextPage'],
+      );
+    } catch (e) {
+      yield PhotoError(e.toString());
+    }
   }
 
   Stream<PhotoState> _mapFetchPhotosToPhotoLoaded() async* {
-    PhotoLoaded currentState = state;
+    dynamic currentState = state;
+    if (currentState is PhotoError) {
+      yield* _mapFetchPhotosToPhotoUninitialized();
+      return;
+    }
     if (!currentState.hasReachedMax) {
       Map res = await repository.fetchPhotos(url: currentState.nextPage);
       if ((res['photos'] as List).isEmpty) {
@@ -62,6 +79,12 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     likedPhotos$.add(event.photo);
   }
 
+  void _mapDownloadPhotoToState(String url) async {
+    downloadPhoto$.sink.add(true);
+    await repository.downloadPhoto(url);
+    downloadPhoto$.sink.add(false);
+  }
+
   @override
   Stream<PhotoState> mapEventToState(PhotoEvent event) async* {
     PhotoState currentState = state;
@@ -74,12 +97,18 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
         if (currentState is PhotoLoaded) {
           yield* _mapFetchPhotosToPhotoLoaded();
         }
+        if (currentState is PhotoError) {
+          yield* _mapFetchPhotosToPhotoLoaded();
+        }
       } catch (e) {
         yield PhotoError(e.toString());
       }
     }
     if (event is LikePhoto) {
       _mapLikePhotoToState(event);
+    }
+    if (event is DownloadPhoto) {
+      _mapDownloadPhotoToState(event.url);
     }
   }
 }

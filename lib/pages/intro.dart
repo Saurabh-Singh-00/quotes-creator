@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/user/user_bloc.dart';
@@ -56,6 +58,13 @@ class WelcomePage extends StatelessWidget {
 
 class SetUserPreferencePage extends StatelessWidget {
   final TextEditingController controller = TextEditingController();
+  final StreamController<int> avatarIndexStream =
+      StreamController<int>.broadcast();
+  static int avatarIndex = 0;
+
+  void close() {
+    avatarIndexStream.close();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +85,49 @@ class SetUserPreferencePage extends StatelessWidget {
                   fontSize: 28.0,
                   fontFamily: 'Lobster',
                 ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Select your avatar",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 18.0,
+                  fontFamily: 'Lobster',
+                ),
+              ),
+            ),
+            GridView.count(
+              crossAxisCount: 4,
+              shrinkWrap: true,
+              padding: EdgeInsets.all(8.0),
+              scrollDirection: Axis.vertical,
+              physics: NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8.0,
+              crossAxisSpacing: 8.0,
+              childAspectRatio: 1.0,
+              children: List.generate(
+                8,
+                (index) => StreamBuilder<Object>(
+                    stream: avatarIndexStream.stream,
+                    initialData: 0,
+                    builder: (context, snapshot) {
+                      return InkWell(
+                        onTap: () {
+                          avatarIndex = index;
+                          avatarIndexStream.sink.add(index);
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: snapshot.data == index
+                              ? Colors.black
+                              : Colors.grey,
+                          backgroundImage: AssetImage(
+                            "assets/avatar/avatar (${index + 1}).png",
+                          ),
+                        ),
+                      );
+                    }),
               ),
             ),
             Padding(
@@ -107,6 +159,7 @@ class SetUserPreferencePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: BlocBuilder<UserBloc, UserState>(
+                bloc: BlocProvider.of<UserBloc>(context),
                 builder: (context, state) {
                   return RaisedButton(
                     color: Colors.black,
@@ -123,7 +176,7 @@ class SetUserPreferencePage extends StatelessWidget {
                           ),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
-                    onPressed: () {
+                    onPressed: () async {
                       if (controller.value.text
                           .trimRight()
                           .trimLeft()
@@ -135,8 +188,12 @@ class SetUserPreferencePage extends StatelessWidget {
                           ));
                       } else {
                         BlocProvider.of<UserBloc>(context)
-                          ..add(SaveUserPreference(
-                              username: controller.value.text));
+                          ..add(
+                            SaveUserPreference(
+                                username: controller.value.text,
+                                avatar:
+                                    "assets/avatar/avatar (${avatarIndex + 1}).png"),
+                          );
                       }
                     },
                   );

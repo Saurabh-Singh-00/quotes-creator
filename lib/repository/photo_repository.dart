@@ -1,11 +1,11 @@
 import 'dart:io';
-
 import 'package:insta_creator/models/photo.dart';
 import 'package:insta_creator/services/api.dart';
 import 'package:insta_creator/secrets/keys.dart';
 import 'package:insta_creator/services/db.dart';
 import 'package:insta_creator/services/storage.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:http/http.dart' as http;
 
 class PhotoRepository {
   /// Using [API] class as Data Provider with CRUD methods
@@ -97,7 +97,9 @@ class PhotoRepository {
       userPhotosList = [];
       List<FileSystemEntity> imageFiles = await Storage.getExternalPhotosPath();
       for (FileSystemEntity file in imageFiles) {
-        userPhotosList.add(file.path);
+        if (file is File) {
+          userPhotosList.add(file.path);
+        }
       }
     }
     return userPhotosList;
@@ -109,5 +111,15 @@ class PhotoRepository {
     } else {
       userPhotosList.add(path);
     }
+  }
+
+  Future<String> downloadPhoto(String url) async {
+    http.Response response = await http.get(url);
+    return await Storage.saveImage(
+        response.bodyBytes.buffer.asUint8List(
+          response.bodyBytes.offsetInBytes,
+          response.bodyBytes.lengthInBytes,
+        ),
+        "Saved/");
   }
 }

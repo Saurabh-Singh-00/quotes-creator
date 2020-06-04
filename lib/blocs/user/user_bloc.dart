@@ -25,8 +25,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   Stream<UserState> _mapSaveUserPreferenceToState(
       SaveUserPreference event) async* {
     yield SavingUserPreference();
-    await repository.saveAuthPreference(
-        {"isAuthenticated": true, "username": event.username});
+    await repository.saveAuthPreference({
+      "isAuthenticated": true,
+      "username": event.username,
+      "avatar": event.avatar
+    });
     yield AuthenticatedUser();
   }
 

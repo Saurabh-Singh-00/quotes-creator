@@ -53,7 +53,22 @@ class _DiscoverTabState extends State<DiscoverTab> {
           );
         }
         if (state is PhotoError) {
-          return Center(child: Text("${state.e}"));
+          return Center(
+              child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "${state.e}",
+                textAlign: TextAlign.center,
+              ),
+              IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () {
+                    BlocProvider.of<PhotoBloc>(context).add(FetchPhotos());
+                  })
+            ],
+          ));
         }
         return Center(
           child: CircularProgressIndicator(

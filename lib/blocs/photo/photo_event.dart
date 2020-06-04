@@ -15,3 +15,9 @@ class SavePhoto extends PhotoEvent {
 
   SavePhoto(this.photo);
 }
+
+class DownloadPhoto extends PhotoEvent {
+  final String url;
+
+  DownloadPhoto(this.url);
+}

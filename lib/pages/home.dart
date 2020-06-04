@@ -1,7 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:insta_creator/blocs/photo/search_bloc.dart';
 import 'package:insta_creator/blocs/photo/search_event.dart';
+import 'package:insta_creator/blocs/user/user_bloc.dart';
+import 'package:insta_creator/models/photo.dart';
+import 'package:insta_creator/pages/photo_edit.dart';
 import 'package:insta_creator/pages/tabs/discover.dart';
 import 'package:insta_creator/pages/tabs/favourites.dart';
 import 'package:insta_creator/pages/tabs/profile.dart';
@@ -17,6 +23,7 @@ class _HomePageState extends State<HomePage>
   TabController tabController;
   int tabIndex = 0;
   bool isFABVisible = true;
+  final ImagePicker picker = ImagePicker();
   final List<String> tabTitle = [
     "Discover",
     "Search",
@@ -39,6 +46,21 @@ class _HomePageState extends State<HomePage>
     FavouritesTab(),
     ProfileTab(),
   ];
+
+  Future<Photo> pickedImagePath() async {
+    PickedFile imagePath = await picker.getImage(source: ImageSource.gallery);
+    if (imagePath != null) {
+      var decoded = await decodeImageFromList(
+        await imagePath.readAsBytes(),
+      );
+      return Photo(
+          srcFromDbOriginal: imagePath.path,
+          width: decoded.width,
+          height: decoded.height,
+          photographer: BlocProvider.of<UserBloc>(context).repository.username);
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -114,7 +136,21 @@ class _HomePageState extends State<HomePage>
           : null,
       backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) {
+        onTap: (index) async {
+          if (index == 2) {
+            Photo photo = await pickedImagePath();
+            if (photo != null) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => PhotoEditPage(
+                    photo: photo,
+                    isLocal: true,
+                  ),
+                ),
+              );
+            }
+            return;
+          }
           if (index != tabController.index) {
             tabController.animateTo(index, curve: Curves.fastOutSlowIn);
             setState(() {

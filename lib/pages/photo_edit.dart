@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insta_creator/blocs/photo/edit_bloc.dart';
 import 'package:insta_creator/blocs/photo/photo_bloc.dart';
 import 'package:insta_creator/models/photo.dart';
+import 'package:insta_creator/pages/photo_view.dart';
 import 'package:insta_creator/services/storage.dart';
 import 'package:insta_creator/widgets/draggable_text.dart';
 import 'package:insta_creator/widgets/image_loader.dart';
@@ -15,8 +16,11 @@ import 'dart:ui' as ui;
 
 class PhotoEditPage extends StatefulWidget {
   final Photo photo;
+  final bool isLocal;
 
-  const PhotoEditPage({Key key, this.photo}) : super(key: key);
+  const PhotoEditPage({Key key, this.photo, bool isLocal})
+      : this.isLocal = isLocal != null,
+        super(key: key);
 
   @override
   _PhotoEditPageState createState() => _PhotoEditPageState();
@@ -29,6 +33,7 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
   Color filterColor = Colors.black;
   bool showTextInput = false;
   bool showFilterOpacitySlider = false;
+  String editedPath = "";
 
   final Map<String, Map<String, dynamic>> navbarItems = {
     "Change Filter": {
@@ -108,13 +113,15 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
                 onPressed: !snapshot.data
                     ? () async {
                         editBloc.add(Save());
-                        await saveImage();
+                        editedPath = await saveImage();
                         editBloc.add(Saved());
                       }
                     : () {},
-                child: Text(
-                  snapshot.data ? "Saving" : "Save",
-                ),
+                child: snapshot.data
+                    ? CircularProgressIndicator()
+                    : Text(
+                        "Save",
+                      ),
                 color: Colors.black,
                 textColor: Colors.white,
               );
@@ -131,10 +138,23 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
               if (state is SaveComplete) {
                 Scaffold.of(context)
                   ..hideCurrentSnackBar()
-                  ..showSnackBar(SnackBar(
-                    content: Text("Saved"),
-                    duration: Duration(seconds: 3),
-                  ));
+                  ..showSnackBar(
+                    SnackBar(
+                      content: Text("Saved"),
+                      duration: Duration(seconds: 10),
+                      action: SnackBarAction(
+                          label: "View",
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => PhotoView(
+                                  path: editedPath,
+                                ),
+                              ),
+                            );
+                          }),
+                    ),
+                  );
               }
             },
             buildWhen: (previousState, currentState) {
@@ -153,18 +173,33 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
                             filterColor.withOpacity(filterOpacity),
                             BlendMode.darken,
                           ),
-                          child: Image.network(
-                            widget.photo.src != null
-                                ? widget.photo.src.original
-                                : widget.photo.srcFromDbOriginal,
-                            fit: BoxFit.contain,
-                            loadingBuilder: (_, child, progress) => Center(
-                              child: ImageLoader(
-                                child: child,
-                                loadingProgress: progress,
-                              ),
-                            ),
-                          ),
+                          child: widget.isLocal
+                              ? Image(
+                                  image: FileImage(
+                                    File(widget.photo.srcFromDbOriginal),
+                                  ),
+                                  fit: BoxFit.contain,
+                                  loadingBuilder: (_, child, progress) =>
+                                      Center(
+                                    child: ImageLoader(
+                                      child: child,
+                                      loadingProgress: progress,
+                                    ),
+                                  ),
+                                )
+                              : Image.network(
+                                  widget.photo.src != null
+                                      ? widget.photo.src.large
+                                      : widget.photo.srcFromDbOriginal,
+                                  fit: BoxFit.contain,
+                                  loadingBuilder: (_, child, progress) =>
+                                      Center(
+                                    child: ImageLoader(
+                                      child: child,
+                                      loadingProgress: progress,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ] +
                       ((state is Editing)

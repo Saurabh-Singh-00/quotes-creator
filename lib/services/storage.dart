@@ -35,11 +35,18 @@ class Storage {
     return dir.path;
   }
 
-  static Future<String> saveImage(Uint8List file) async {
+  static Future<String> saveImage(Uint8List file, [String path]) async {
     String savedPath;
     try {
       String imagePath = await externalStoragePath;
-      imagePath += "${DateTime.now().millisecondsSinceEpoch}.png";
+      if (path != null) {
+        Directory dir = Directory([imagePath, "$path/"].join("/"));
+        if (!await dir.exists()) {
+          await dir.create(recursive: true);
+        }
+      }
+      imagePath +=
+          "${path ?? ''}" + "${DateTime.now().millisecondsSinceEpoch}.png";
       File imageFile = File(imagePath);
       Image image = decodeImage(file);
       await imageFile.writeAsBytes(encodePng(
@@ -56,7 +63,7 @@ class Storage {
     Directory imageDirectory = await externalStorageDirectory;
     List<FileSystemEntity> images = [];
     try {
-      images = imageDirectory.listSync(recursive: true, followLinks: false);
+      images = imageDirectory.listSync(recursive: false, followLinks: false);
     } catch (e) {
       print(e);
     }
