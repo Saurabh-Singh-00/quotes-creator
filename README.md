@@ -3,14 +3,16 @@
 
 ### Preview
 
-![Discover](screenshots/discover.PNG "Discover")
-![Liked](screenshots/liked.PNG "Liked")
-![Loading](screenshots/loading.PNG "Loading")
-![Details](screenshots/details.PNG "Details")
-![Search](screenshots/search_uninit.PNG "Search")
-![Search](screenshots/search_field.PNG "Search")
-![Search](screenshots/search_result.PNG "Search")
-![Search](screenshots/saved_search.PNG "Search")
+<img src="screenshots/intro.PNG" width="200" />
+<img src="screenshots/avatar.PNG" width="200" />
+<img src="screenshots/discover.PNG" width="200" />
+<img src="screenshots/liked.PNG" width="200" />
+<img src="screenshots/details.PNG" width="200" />
+<img src="screenshots/editing.PNG" width="200" />
+<img src="screenshots/search_uninit.PNG" width="200" />
+<img src="screenshots/search_field.PNG" width="200" />
+<img src="screenshots/search_result.PNG" width="200" />
+<img src="screenshots/profile.PNG" width="200" />
 
 ### Contribution Guide
 
@@ -29,9 +31,10 @@ in _key.dart file
 - [x] ~~Discover~~
 - [x] ~~Search~~
 - [x] ~~Add to Favourites~~
-- [ ] Download Image
+- [x] ~~Download Image~~
 - [x] ~~Edit Image~~
 - [x] ~~Save Edited Image~~
-- [ ] User Profile
+- [x] ~~User Profile~~
 - [ ] Share Image
-- [ ] Edit On Device Image
+- [x] ~~Edit On Device Image~~
+- [ ] Show Download Notification
